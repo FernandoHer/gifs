@@ -24,12 +24,10 @@ export class GifsService {
     return [...this._tagsHistory];
   }
   
-  async searchTag( tag:string ){
+  searchTag( tag:string ){
     if ( tag.length === 0 ) return;
     this.organizeHistory( tag );
-    this._tagsHistory.unshift( tag );
-    this._tagsHistory= this._tagsHistory.slice(0,10)
-
+  
     const params = new HttpParams()
       .set('api_key', this.apiKey)
       .set('limit', '10')
@@ -38,27 +36,32 @@ export class GifsService {
     this.http.get<SearchResponse>(`${this.serviceUrl}/search`, { params })
       .subscribe(resp => {
         this.gifList = resp.data
-      })
-
-    this.saveLocalStorage();
-    
+      })  
   }
 
   private saveLocalStorage(){
     localStorage.setItem('history', JSON.stringify(this._tagsHistory));
   }
 
-  private loadLocalStorage(){
-    if( !localStorage.getItem('history')) { return }
-    this._tagsHistory = JSON.parse( localStorage.getItem('history')!);
-    const firstTag = this._tagsHistory[0];
-    this.searchTag(firstTag);
+  private loadLocalStorage():void {
+    if( !localStorage.getItem('history')) return;
 
+    this._tagsHistory = JSON.parse( localStorage.getItem('history')! );
+
+    if ( this._tagsHistory.length === 0 ) return;
+    this.searchTag( this._tagsHistory[0] );
   }
 
-  organizeHistory( tag: string ){
+  private organizeHistory(tag: string) {
     tag = tag.toLowerCase();
-    this._tagsHistory = this._tagsHistory.filter((oldtag) => oldtag !== tag)
+
+    if ( this._tagsHistory.includes( tag ) ) {
+      this._tagsHistory = this._tagsHistory.filter( (oldTag) => oldTag !== tag )
+    }
+
+    this._tagsHistory.unshift( tag );
+    this._tagsHistory = this.tagsHistory.splice(0,10);
+    this.saveLocalStorage();
   }
 
 }

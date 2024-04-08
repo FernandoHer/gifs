@@ -8,14 +8,14 @@ import { GifsService } from '../../../services/gifs.service';
 })
 export class SearchBoxComponent {
 
+  @ViewChild('txtTagInput')
+  tagInput!:ElementRef<HTMLInputElement>;
+
   constructor( 
     private gifsService: GifsService
     ){
 
   }
-
-  @ViewChild('txtTagInput')
-  tagInput!:ElementRef<HTMLInputElement>;
 
   searchTag(){
     const newTag = this.tagInput.nativeElement.value
